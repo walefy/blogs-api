@@ -1,6 +1,7 @@
 package org.walefy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -8,10 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.walefy.mock.UserFixtures;
 import org.walefy.mock.GenericJson;
 import org.walefy.util.TestHelpers;
@@ -30,10 +33,19 @@ import org.walefy.util.TestHelpers;
 @DisplayName("<User> Integration test")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserTest {
+
   @Autowired
   private MockMvc mockMvc;
 
   private final ObjectMapper jsonMapper = new ObjectMapper();
+
+  @BeforeEach
+  public void setup(WebApplicationContext wac) {
+    mockMvc = MockMvcBuilders
+        .webAppContextSetup(wac)
+        .apply(springSecurity())
+        .build();
+  }
 
   private GenericJson createUser(Map<String, Object> data, int statusCode) throws Exception {
     String responseJson = mockMvc.perform(
@@ -60,7 +72,7 @@ public class UserTest {
 
     GenericJson response = this.createUser(UserFixtures.validUserCreate, 201);
 
-    assertEquals(response, expectedResponse);
+    assertEquals(expectedResponse, response);
   }
 
   @Test
@@ -71,18 +83,20 @@ public class UserTest {
     this.createUser(UserFixtures.validUserCreate, 201);
     GenericJson response = this.createUser(UserFixtures.validUserCreate, 409);
 
-    assertEquals(response, expectedResponse);
+    assertEquals(expectedResponse, response);
   }
 
   @Test
   @DisplayName("shouldn't create user without email or with invalid email")
   void testCreateUserWithInvalidEmail() throws Exception {
     GenericJson expectedResponseInvalid = new GenericJson(Map.of(
-        "message", "email attribute must be a valid email"
+        "message", "some invalid fields",
+        "stack", List.of("email attribute must be a valid email")
     ));
 
     GenericJson expectedResponseWithout = new GenericJson(Map.of(
-        "message", "email attribute must no be blank"
+        "message", "some invalid fields",
+        "stack", List.of("email attribute must no be blank")
     ));
 
     GenericJson responseWithoutEmail = this.createUser(UserFixtures.userWithoutEmail, 400);
@@ -96,11 +110,13 @@ public class UserTest {
   @DisplayName("shouldn't create user without name or with invalid name")
   void testCreateUserWithInvalidName() throws Exception {
     GenericJson expectedResponseInvalid = new GenericJson(Map.of(
-        "message", "name must have more than 3 characters"
+        "message", "some invalid fields",
+        "stack", List.of("name must have more than 3 characters")
     ));
 
     GenericJson expectedResponseWithout = new GenericJson(Map.of(
-        "message", "name attribute must no be blank"
+        "message", "some invalid fields",
+        "stack", List.of("name attribute must no be blank")
     ));
 
     GenericJson responseWithoutName = this.createUser(UserFixtures.userWithoutName, 400);
@@ -114,11 +130,13 @@ public class UserTest {
   @DisplayName("shouldn't create user without password or with invalid password")
   void testCreateUserWithInvalidPassword() throws Exception {
     GenericJson expectedResponseInvalid = new GenericJson(Map.of(
-        "message", "password must have more than 6 characters"
+        "message", "some invalid fields",
+        "stack", List.of("password must have more than 6 characters")
     ));
 
     GenericJson expectedResponseWithout = new GenericJson(Map.of(
-        "message", "password attribute must no be blank"
+        "message", "some invalid fields",
+        "stack", List.of("password attribute must no be blank")
     ));
 
     GenericJson responseWithoutPassword = this.createUser(UserFixtures.userWithoutPassword, 400);
@@ -133,7 +151,6 @@ public class UserTest {
   void testListAllUserSuccess() throws Exception {
     List<GenericJson> users = UserFixtures.generateAListOfValidUsers(5);
     List<GenericJson> expectedUsers = new ArrayList<>();
-
 
     for (GenericJson user : users) {
       GenericJson userRes = this.createUser(user, 201);

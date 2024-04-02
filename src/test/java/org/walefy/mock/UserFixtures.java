@@ -1,7 +1,6 @@
 package org.walefy.mock;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +57,6 @@ public class UserFixtures {
     for (int index = 0; index <= quantity; index++) {
       GenericJson user = new GenericJson(Map.of(
           "name", "test",
-          "email", "",
           "password", "password",
           "image", ""
       ));

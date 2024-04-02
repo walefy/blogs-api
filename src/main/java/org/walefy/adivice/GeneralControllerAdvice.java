@@ -1,10 +1,11 @@
 package org.walefy.adivice;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,13 +22,17 @@ public class GeneralControllerAdvice {
   }
 
   @ExceptionHandler({ MethodArgumentNotValidException.class })
-  public ResponseEntity<Map<String, String>> handleInvalidArgument(
+  public ResponseEntity<Map<String, Object>> handleInvalidArgument(
       MethodArgumentNotValidException e
   ) {
-    FieldError fieldError = e.getBindingResult().getFieldError();
+    List<String> fieldErrors= e.getFieldErrors()
+        .stream()
+        .map(DefaultMessageSourceResolvable::getDefaultMessage)
+        .toList();
 
-    Map<String, String> response = new HashMap<>(1);
-    response.put("message", fieldError != null ? fieldError.getDefaultMessage() : null);
+    Map<String, Object> response = new HashMap<>(1);
+    response.put("message", "some invalid fields");
+    response.put("stack", fieldErrors);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
