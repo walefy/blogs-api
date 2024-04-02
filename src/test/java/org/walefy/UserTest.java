@@ -1,11 +1,16 @@
 package org.walefy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.walefy.mock.UserFixtures;
-import org.walefy.mock.UserMock;
+import org.walefy.mock.GenericJson;
 import org.walefy.util.TestHelpers;
 
 @SpringBootTest
@@ -30,7 +35,7 @@ public class UserTest {
 
   private final ObjectMapper jsonMapper = new ObjectMapper();
 
-  private UserMock createUser(Map<String, Object> data, int statusCode) throws Exception {
+  private GenericJson createUser(Map<String, Object> data, int statusCode) throws Exception {
     String responseJson = mockMvc.perform(
             post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -40,20 +45,20 @@ public class UserTest {
     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
     .andReturn().getResponse().getContentAsString();
 
-    return jsonMapper.readValue(responseJson, UserMock.class);
+    return jsonMapper.readValue(responseJson, GenericJson.class);
   }
 
   @Test
   @DisplayName("must create a user")
   void testCreateUserSuccess() throws Exception {
-    UserMock expectedResponse = new UserMock(Map.of(
+    GenericJson expectedResponse = new GenericJson(Map.of(
         "id", 1,
         "name", "test",
         "email", "test@test.com",
         "image", ""
     ));
 
-    UserMock response = this.createUser(UserFixtures.validUserCreate, 201);
+    GenericJson response = this.createUser(UserFixtures.validUserCreate, 201);
 
     assertEquals(response, expectedResponse);
   }
@@ -61,10 +66,10 @@ public class UserTest {
   @Test
   @DisplayName("shouldn't create two users with the same email")
   void testCreateTwoUserConflict() throws Exception {
-    UserMock expectedResponse = new UserMock(Map.of("message", "User already registred!"));
+    GenericJson expectedResponse = new GenericJson(Map.of("message", "User already registred!"));
 
     this.createUser(UserFixtures.validUserCreate, 201);
-    UserMock response = this.createUser(UserFixtures.validUserCreate, 409);
+    GenericJson response = this.createUser(UserFixtures.validUserCreate, 409);
 
     assertEquals(response, expectedResponse);
   }
@@ -72,16 +77,16 @@ public class UserTest {
   @Test
   @DisplayName("shouldn't create user without email or with invalid email")
   void testCreateUserWithInvalidEmail() throws Exception {
-    UserMock expectedResponseInvalid = new UserMock(Map.of(
+    GenericJson expectedResponseInvalid = new GenericJson(Map.of(
         "message", "email attribute must be a valid email"
     ));
 
-    UserMock expectedResponseWithout = new UserMock(Map.of(
+    GenericJson expectedResponseWithout = new GenericJson(Map.of(
         "message", "email attribute must no be blank"
     ));
 
-    UserMock responseWithoutEmail = this.createUser(UserFixtures.userWithoutEmail, 400);
-    UserMock responseWithInvalidEmail = this.createUser(UserFixtures.userWithInvalidEmail, 400);
+    GenericJson responseWithoutEmail = this.createUser(UserFixtures.userWithoutEmail, 400);
+    GenericJson responseWithInvalidEmail = this.createUser(UserFixtures.userWithInvalidEmail, 400);
 
     assertEquals(expectedResponseWithout, responseWithoutEmail);
     assertEquals(expectedResponseInvalid, responseWithInvalidEmail);
@@ -90,16 +95,16 @@ public class UserTest {
   @Test
   @DisplayName("shouldn't create user without name or with invalid name")
   void testCreateUserWithInvalidName() throws Exception {
-    UserMock expectedResponseInvalid = new UserMock(Map.of(
+    GenericJson expectedResponseInvalid = new GenericJson(Map.of(
         "message", "name must have more than 3 characters"
     ));
 
-    UserMock expectedResponseWithout = new UserMock(Map.of(
+    GenericJson expectedResponseWithout = new GenericJson(Map.of(
         "message", "name attribute must no be blank"
     ));
 
-    UserMock responseWithoutName = this.createUser(UserFixtures.userWithoutName, 400);
-    UserMock responseWithInvalidName = this.createUser(UserFixtures.userWithInvalidName, 400);
+    GenericJson responseWithoutName = this.createUser(UserFixtures.userWithoutName, 400);
+    GenericJson responseWithInvalidName = this.createUser(UserFixtures.userWithInvalidName, 400);
 
     assertEquals(expectedResponseWithout, responseWithoutName);
     assertEquals(expectedResponseInvalid, responseWithInvalidName);
@@ -108,18 +113,45 @@ public class UserTest {
   @Test
   @DisplayName("shouldn't create user without password or with invalid password")
   void testCreateUserWithInvalidPassword() throws Exception {
-    UserMock expectedResponseInvalid = new UserMock(Map.of(
+    GenericJson expectedResponseInvalid = new GenericJson(Map.of(
         "message", "password must have more than 6 characters"
     ));
 
-    UserMock expectedResponseWithout = new UserMock(Map.of(
+    GenericJson expectedResponseWithout = new GenericJson(Map.of(
         "message", "password attribute must no be blank"
     ));
 
-    UserMock responseWithoutPassword = this.createUser(UserFixtures.userWithoutPassword, 400);
-    UserMock responseWithInvalidPassword = this.createUser(UserFixtures.userWithInvalidPassword, 400);
+    GenericJson responseWithoutPassword = this.createUser(UserFixtures.userWithoutPassword, 400);
+    GenericJson responseWithInvalidPassword = this.createUser(UserFixtures.userWithInvalidPassword, 400);
 
     assertEquals(expectedResponseWithout, responseWithoutPassword);
     assertEquals(expectedResponseInvalid, responseWithInvalidPassword);
+  }
+
+  @Test
+  @DisplayName("must list all users")
+  void testListAllUserSuccess() throws Exception {
+    List<GenericJson> users = UserFixtures.generateAListOfValidUsers(5);
+    List<GenericJson> expectedUsers = new ArrayList<>();
+
+
+    for (GenericJson user : users) {
+      GenericJson userRes = this.createUser(user, 201);
+      expectedUsers.add(userRes);
+    }
+
+    String responseJson = mockMvc.perform(get("/user")
+            .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn().getResponse().getContentAsString();
+
+    List<GenericJson> usersResponse = jsonMapper.readValue(
+        responseJson,
+        new TypeReference<>() {}
+    );
+
+    assertEquals(expectedUsers, usersResponse);
   }
 }

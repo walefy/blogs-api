@@ -1,5 +1,8 @@
 package org.walefy.mock;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserFixtures {
@@ -49,4 +52,22 @@ public class UserFixtures {
       "image", ""
   );
 
+  public static List<GenericJson> generateAListOfValidUsers(int quantity) {
+    List<GenericJson> users = new ArrayList<>();
+
+    for (int index = 0; index <= quantity; index++) {
+      GenericJson user = new GenericJson(Map.of(
+          "name", "test",
+          "email", "",
+          "password", "password",
+          "image", ""
+      ));
+
+      user.put("email", String.format("test%d@test.com", index));
+      users.add(user);
+    }
+
+    System.out.println(users);
+    return users;
+  }
 }
