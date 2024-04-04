@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.Collection;
 import java.util.List;
@@ -24,6 +26,9 @@ public class User implements UserDetails {
   private String email;
   @Column(nullable = false)
   private String password;
+
+  @OneToMany(mappedBy = "user")
+  private List<Post> posts;
 
   private String image;
 
@@ -112,5 +117,13 @@ public class User implements UserDetails {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public List<Post> getPosts() {
+    return posts;
+  }
+
+  public void setPosts(List<Post> posts) {
+    this.posts = posts;
   }
 }
