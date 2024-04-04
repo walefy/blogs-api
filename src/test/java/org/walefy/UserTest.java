@@ -2,11 +2,13 @@ package org.walefy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -41,14 +43,14 @@ public class UserTest {
 
   @BeforeEach
   public void setup(WebApplicationContext wac) {
-    mockMvc = MockMvcBuilders
+    this.mockMvc = MockMvcBuilders
         .webAppContextSetup(wac)
         .apply(springSecurity())
         .build();
   }
 
   private GenericJson createUser(Map<String, Object> data, int statusCode) throws Exception {
-    String responseJson = mockMvc.perform(
+    String responseJson = this.mockMvc.perform(
             post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestHelpers.objectToJson(data))
@@ -60,9 +62,23 @@ public class UserTest {
     return jsonMapper.readValue(responseJson, GenericJson.class);
   }
 
+  private String login(Map<String, String> payload) throws Exception {
+    String loginResponse = this.mockMvc.perform(
+        post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(TestHelpers.objectToJson(payload))
+    )
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn().getResponse().getContentAsString();
+
+    GenericJson loginMap = jsonMapper.readValue(loginResponse, GenericJson.class);
+    return (String) loginMap.get("token");
+  }
+
   @Test
   @DisplayName("must create a user")
-  void testCreateUserSuccess() throws Exception {
+  public void testCreateUserSuccess() throws Exception {
     GenericJson expectedResponse = new GenericJson(Map.of(
         "id", 1,
         "name", "test",
@@ -77,7 +93,7 @@ public class UserTest {
 
   @Test
   @DisplayName("shouldn't create two users with the same email")
-  void testCreateTwoUserConflict() throws Exception {
+  public void testCreateTwoUserConflict() throws Exception {
     GenericJson expectedResponse = new GenericJson(Map.of("message", "User already registred!"));
 
     this.createUser(UserFixtures.validUserCreate, 201);
@@ -88,7 +104,7 @@ public class UserTest {
 
   @Test
   @DisplayName("shouldn't create user without email or with invalid email")
-  void testCreateUserWithInvalidEmail() throws Exception {
+  public void testCreateUserWithInvalidEmail() throws Exception {
     GenericJson expectedResponseInvalid = new GenericJson(Map.of(
         "message", "some invalid fields",
         "stack", List.of("email attribute must be a valid email")
@@ -108,7 +124,7 @@ public class UserTest {
 
   @Test
   @DisplayName("shouldn't create user without name or with invalid name")
-  void testCreateUserWithInvalidName() throws Exception {
+  public void testCreateUserWithInvalidName() throws Exception {
     GenericJson expectedResponseInvalid = new GenericJson(Map.of(
         "message", "some invalid fields",
         "stack", List.of("name must have more than 3 characters")
@@ -128,7 +144,7 @@ public class UserTest {
 
   @Test
   @DisplayName("shouldn't create user without password or with invalid password")
-  void testCreateUserWithInvalidPassword() throws Exception {
+  public void testCreateUserWithInvalidPassword() throws Exception {
     GenericJson expectedResponseInvalid = new GenericJson(Map.of(
         "message", "some invalid fields",
         "stack", List.of("password must have more than 6 characters")
@@ -148,7 +164,7 @@ public class UserTest {
 
   @Test
   @DisplayName("must list all users")
-  void testListAllUserSuccess() throws Exception {
+  public void testListAllUserSuccess() throws Exception {
     List<GenericJson> users = UserFixtures.generateAListOfValidUsers(5);
     List<GenericJson> expectedUsers = new ArrayList<>();
 
@@ -157,18 +173,45 @@ public class UserTest {
       expectedUsers.add(userRes);
     }
 
-    String responseJson = mockMvc.perform(get("/user")
+    String responseJson = this.mockMvc.perform(get("/user")
             .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andReturn().getResponse().getContentAsString();
 
-    List<GenericJson> usersResponse = jsonMapper.readValue(
+    List<GenericJson> usersResponse = this.jsonMapper.readValue(
         responseJson,
         new TypeReference<>() {}
     );
 
     assertEquals(expectedUsers, usersResponse);
+  }
+
+  @Test
+  @DisplayName("must delete a user")
+  public void deleteUserSuccess() throws Exception {
+    GenericJson expectedResponse = new GenericJson(Map.of(
+        "message", "User deleted!"
+    ));
+
+    this.createUser(UserFixtures.validUserCreate, 201);
+    String token = this.login(Map.of(
+        "email", (String) UserFixtures.validUserCreate.get("email"),
+        "password", (String) UserFixtures.validUserCreate.get("password")
+    ));
+
+    String deleteResponse = this.mockMvc.perform(
+        delete("/user")
+            .header("Authorization", token)
+            .contentType(MediaType.APPLICATION_JSON)
+    )
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn().getResponse().getContentAsString();
+
+    GenericJson receivedResponse = this.jsonMapper.readValue(deleteResponse, GenericJson.class);
+
+    assertEquals(expectedResponse, receivedResponse);
   }
 }

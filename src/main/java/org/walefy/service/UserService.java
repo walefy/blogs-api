@@ -1,5 +1,6 @@
 package org.walefy.service;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,11 @@ public class UserService implements UserDetailsService {
 
   public List<User> findAll() {
     return this.userRepository.findAll();
+  }
+
+  @Transactional
+  public void deleteByEmail(String email) {
+    this.userRepository.deleteByEmail(email);
   }
 
   @Override

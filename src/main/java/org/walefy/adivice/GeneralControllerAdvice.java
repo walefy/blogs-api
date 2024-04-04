@@ -30,7 +30,7 @@ public class GeneralControllerAdvice {
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
         .toList();
 
-    Map<String, Object> response = new HashMap<>(1);
+    Map<String, Object> response = new HashMap<>(2);
     response.put("message", "some invalid fields");
     response.put("stack", fieldErrors);
 
