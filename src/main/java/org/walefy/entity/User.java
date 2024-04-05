@@ -32,7 +32,7 @@ public class User implements UserDetails {
   private String password;
 
   @OneToMany(mappedBy = "user")
-  private List<Post> posts;
+  private List<Post> posts = new ArrayList<>();
 
   private String image;
 

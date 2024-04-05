@@ -15,7 +15,6 @@ import org.walefy.entity.Post;
 import org.walefy.entity.User;
 import org.walefy.exception.UserAlreadyRegistred;
 import org.walefy.exception.UserNotFoundException;
-import org.walefy.repository.PostRepository;
 import org.walefy.repository.UserRepository;
 
 @Service
