@@ -41,6 +41,14 @@ public class Post {
   private LocalDateTime updatedAt;
 
 
+  public Post(String title, String content) {
+    this.title = title;
+    this.content = content;
+  }
+
+  public Post() {}
+
+
   public User getUser() {
     return user;
   }

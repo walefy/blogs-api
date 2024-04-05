@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.walefy.dto.PostCreationDto;
+import org.walefy.dto.PostReturnDto;
 import org.walefy.dto.UserCreationDto;
 import org.walefy.dto.UserReturnDto;
+import org.walefy.entity.Post;
 import org.walefy.entity.User;
 import org.walefy.exception.UserAlreadyRegistred;
+import org.walefy.exception.UserNotFoundException;
 import org.walefy.service.UserService;
 
 @RestController
@@ -56,5 +60,16 @@ public class UserController {
     this.userService.deleteByEmail(email);
 
     return ResponseEntity.ok(Map.of("message", "User deleted!"));
+  }
+
+  @PostMapping("/post")
+  public ResponseEntity<PostReturnDto> addPost(
+      @RequestBody @Valid PostCreationDto postCreation,
+      Authentication authentication
+  )
+      throws UserNotFoundException {
+    Post post = this.userService.addPost(postCreation, authentication.getName());
+
+    return ResponseEntity.ok(PostReturnDto.postToPostReturnDto(post));
   }
 }
