@@ -7,13 +7,13 @@ import jakarta.validation.constraints.Size;
 import org.walefy.entity.User;
 
 public record UserCreationDto(
-  @NotBlank(message = "name attribute must no be blank")
+  @NotBlank(message = "name attribute must not be blank")
   @Size(min = 3, message = "name must have more than 3 characters")
   String name,
-  @NotBlank(message = "password attribute must no be blank")
+  @NotBlank(message = "password attribute must not be blank")
   @Size(min = 6, message = "password must have more than 6 characters")
   String password,
-  @NotBlank(message = "email attribute must no be blank")
+  @NotBlank(message = "email attribute must not be blank")
   @Email(message = "email attribute must be a valid email")
   String email,
   @Nullable

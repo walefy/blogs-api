@@ -112,7 +112,7 @@ public class UserTest {
 
     GenericJson expectedResponseWithout = new GenericJson(Map.of(
         "message", "some invalid fields",
-        "stack", List.of("email attribute must no be blank")
+        "stack", List.of("email attribute must not be blank")
     ));
 
     GenericJson responseWithoutEmail = this.createUser(UserFixtures.userWithoutEmail, 400);
@@ -132,7 +132,7 @@ public class UserTest {
 
     GenericJson expectedResponseWithout = new GenericJson(Map.of(
         "message", "some invalid fields",
-        "stack", List.of("name attribute must no be blank")
+        "stack", List.of("name attribute must not be blank")
     ));
 
     GenericJson responseWithoutName = this.createUser(UserFixtures.userWithoutName, 400);
@@ -152,7 +152,7 @@ public class UserTest {
 
     GenericJson expectedResponseWithout = new GenericJson(Map.of(
         "message", "some invalid fields",
-        "stack", List.of("password attribute must no be blank")
+        "stack", List.of("password attribute must not be blank")
     ));
 
     GenericJson responseWithoutPassword = this.createUser(UserFixtures.userWithoutPassword, 400);
