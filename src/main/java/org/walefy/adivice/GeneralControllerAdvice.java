@@ -40,7 +40,7 @@ public class GeneralControllerAdvice {
   }
 
   @ExceptionHandler({ UserNotFoundException.class, PostNotFoundException.class })
-  public ResponseEntity<Map<String, String>> handdleNotFound(Exception e) {
+  public ResponseEntity<Map<String, String>> handleNotFound(Exception e) {
     Map<String, String> response = Map.of("message", e.getMessage());
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
