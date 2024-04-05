@@ -15,15 +15,18 @@ import org.walefy.entity.Post;
 import org.walefy.entity.User;
 import org.walefy.exception.UserAlreadyRegistred;
 import org.walefy.exception.UserNotFoundException;
+import org.walefy.repository.PostRepository;
 import org.walefy.repository.UserRepository;
 
 @Service
 public class UserService implements UserDetailsService {
   private final UserRepository userRepository;
+  private final PostRepository postRepository;
 
   @Autowired
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, PostRepository postRepository) {
     this.userRepository = userRepository;
+    this.postRepository = postRepository;
   }
 
   @Transactional
@@ -55,12 +58,10 @@ public class UserService implements UserDetailsService {
         .findByEmail(email)
         .orElseThrow(UserNotFoundException::new);
 
-    Post post = postCreation.toPost();
-    user.getPosts().add(post);
+    Post newPost = postCreation.toPost();
+    newPost.setUser(user);
 
-    this.userRepository.save(user);
-
-    return post;
+    return this.postRepository.save(newPost);
   }
 
   @Override
