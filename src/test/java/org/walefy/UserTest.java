@@ -49,7 +49,7 @@ public class UserTest {
         .build();
   }
 
-  private GenericJson createUser(Map<String, Object> data, int statusCode) throws Exception {
+  private GenericJson createUser(Map<String, String> data, int statusCode) throws Exception {
     String responseJson = this.mockMvc.perform(
             post("/user")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -165,10 +165,10 @@ public class UserTest {
   @Test
   @DisplayName("must list all users")
   public void testListAllUserSuccess() throws Exception {
-    List<GenericJson> users = UserFixtures.generateAListOfValidUsers(5);
+    List<Map<String, String>> users = UserFixtures.generateAListOfValidUsers(5);
     List<GenericJson> expectedUsers = new ArrayList<>();
 
-    for (GenericJson user : users) {
+    for (Map<String, String> user : users) {
       GenericJson userRes = this.createUser(user, 201);
       expectedUsers.add(userRes);
     }

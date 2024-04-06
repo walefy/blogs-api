@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.walefy.exception.PostNotFoundException;
+import org.walefy.exception.UnauthorizedActionException;
 import org.walefy.exception.UserAlreadyRegistred;
 import org.walefy.exception.UserNotFoundException;
 
@@ -44,5 +45,12 @@ public class GeneralControllerAdvice {
     Map<String, String> response = Map.of("message", e.getMessage());
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler({ UnauthorizedActionException.class })
+  public ResponseEntity<Map<String, String>> handleUnauthorizedActions(Exception e) {
+    Map<String, String> response = Map.of("message", e.getMessage());
+
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
   }
 }

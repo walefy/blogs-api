@@ -70,6 +70,6 @@ public class UserController {
       throws UserNotFoundException {
     Post post = this.userService.addPost(postCreation, authentication.getName());
 
-    return ResponseEntity.ok(PostReturnDto.postToPostReturnDto(post));
+    return ResponseEntity.status(HttpStatus.CREATED).body(PostReturnDto.postToPostReturnDto(post));
   }
 }
