@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -113,5 +114,91 @@ public class PostTest {
 
     this.mockMvc.perform(deleteRequest)
       .andExpect(status().isNoContent());
+  }
+
+  @Test
+  @DisplayName("shouldn't create post without title or without content")
+  public void addNewPostWithoutTitleOrContent() throws Exception {
+    this.makeRequest("/user", UserFixtures.validUserCreate, null, 201);
+    Map<String, String> loginPayload = Map.of(
+      "email", UserFixtures.validUserCreate.get("email"),
+      "password", UserFixtures.validUserCreate.get("password")
+    );
+    String token = this.login(loginPayload);
+
+    GenericJson expectedResponseWithoutTitle = new GenericJson(Map.of(
+      "message", "some invalid fields",
+      "stack", List.of(
+        "title attribute must not be blank"
+      )
+    ));
+    GenericJson expectedResponseWithoutContent = new GenericJson(Map.of(
+      "message", "some invalid fields",
+      "stack", List.of(
+        "content attribute must not be blank"
+      )
+    ));
+
+    Map<String, String> postPayloadWithoutTitle = Map.of(
+      "content",
+      "test content"
+    );
+    Map<String, String> postPayloadWithoutContent = Map.of(
+      "title",
+      "test title"
+    );
+
+    GenericJson postWithoutContent = this.makeRequest("/user/post", postPayloadWithoutContent, token, 400);
+    GenericJson postWithoutTitle = this.makeRequest("/user/post", postPayloadWithoutTitle, token, 400);
+
+    assertEquals(expectedResponseWithoutContent, postWithoutContent);
+    assertEquals(expectedResponseWithoutTitle, postWithoutTitle);
+  }
+
+  @Test
+  @DisplayName("shouldn't create post with another user token")
+  public void deleteAnotherUsersPost() throws Exception {
+    this.makeRequest("/user", UserFixtures.validUserCreate, null, 201);
+    Map<String, String> loginPayloadOwner = Map.of(
+      "email", UserFixtures.validUserCreate.get("email"),
+      "password", UserFixtures.validUserCreate.get("password")
+    );
+    String tokenOwner = this.login(loginPayloadOwner);
+
+    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    GenericJson post = this.makeRequest("/user/post", postPayload, tokenOwner, 201);
+
+    Map<String, String> notOwnerUser = Map.of(
+      "name", "testNotOwner",
+      "email", "not@owner.com",
+      "password", "password",
+      "image", ""
+    );
+
+    this.makeRequest("/user", notOwnerUser, null, 201);
+    Map<String, String> loginPayloadNotOwner = Map.of(
+      "email", notOwnerUser.get("email"),
+      "password", notOwnerUser.get("password")
+    );
+    String tokenNotOwner = this.login(loginPayloadNotOwner);
+
+    RequestBuilder deleteRequest = delete("/post/" + post.get("id"))
+      .header("Authorization", "Bearer " + tokenNotOwner);
+
+    this.mockMvc.perform(deleteRequest)
+      .andExpect(status().isForbidden())
+      .andExpect(content().string("{\"message\":\"You are not allowed to: delete a post that is not yours\"}"));
+  }
+
+  @Test
+  @DisplayName("shouldn't create post without token")
+  public void createPostWithoutToken() throws Exception {
+    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    RequestBuilder postRequest = post("/user/post")
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestHelpers.objectToJson(postPayload));
+    this.mockMvc.perform(postRequest)
+      .andExpect(status().isForbidden())
+      .andExpect(content().string(""));
   }
 }
