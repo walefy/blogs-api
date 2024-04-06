@@ -26,7 +26,7 @@ public class PostService {
 
     String ownerOfPostEmail = post.getUser().getEmail();
 
-    if (!ownerOfPostEmail.equals(email)) {
+    if (!ownerOfPostEmail.equalsIgnoreCase(email)) {
       throw new UnauthorizedActionException("delete a post that is not yours");
     }
 
