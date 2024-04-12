@@ -72,4 +72,16 @@ public class UserController {
 
     return ResponseEntity.status(HttpStatus.CREATED).body(PostReturnDto.postToPostReturnDto(post));
   }
+
+  @GetMapping("/post")
+  public ResponseEntity<List<PostReturnDto>> findAllPosts(Authentication authentication)
+    throws UserNotFoundException {
+    List<PostReturnDto> posts = this.userService
+      .findAllPosts(authentication.getName())
+      .stream()
+      .map(PostReturnDto::postToPostReturnDto)
+      .toList();
+
+    return ResponseEntity.ok(posts);
+  }
 }

@@ -64,6 +64,12 @@ public class UserService implements UserDetailsService {
     return this.postRepository.save(newPost);
   }
 
+  public List<Post> findAllPosts(String email) throws UserNotFoundException {
+    User user = this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+
+    return user.getPosts();
+  }
+
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     return this.userRepository
