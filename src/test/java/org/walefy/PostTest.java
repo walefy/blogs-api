@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import jdk.jfr.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.walefy.mock.GenericJson;
 import org.walefy.mock.UserFixtures;
 import org.walefy.util.TestHelpers;
@@ -58,24 +58,18 @@ public class PostTest {
     String token,
     int status
   ) throws Exception {
-    RequestBuilder postRequest;
+    MockHttpServletRequestBuilder postRequest = post(endpoint)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(TestHelpers.objectToJson(data));
 
     if (token != null) {
-      postRequest = post(endpoint)
-        .header("Authorization", "Bearer " + token)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestHelpers.objectToJson(data));
-    } else {
-      postRequest = post(endpoint)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(TestHelpers.objectToJson(data));
+      postRequest.header("Authorization", "Bearer " + token);
     }
 
     String responseJson = this.mockMvc.perform(postRequest)
       .andExpect(status().is(status))
       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
       .andReturn().getResponse().getContentAsString();
-
     return jsonMapper.readValue(responseJson, GenericJson.class);
   }
 
