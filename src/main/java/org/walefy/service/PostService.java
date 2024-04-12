@@ -37,4 +37,8 @@ public class PostService {
   public List<Post> findAll() {
     return this.postRepository.findAll();
   }
+
+  public Post findById(long id) throws PostNotFoundException {
+    return this.postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+  }
 }

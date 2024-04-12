@@ -235,4 +235,31 @@ public class PostTest {
 
     assertEquals(expectedPosts, response);
   }
+
+  @Test
+  @DisplayName("should find post by id")
+  public void findPostById() throws Exception {
+    this.makeRequest("/user", UserFixtures.validUserCreate, null, 201);
+    Map<String, String> login = Map.of(
+      "email", UserFixtures.validUserCreate.get("email"),
+      "password", UserFixtures.validUserCreate.get("password")
+    );
+    String token = this.login(login);
+
+    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
+
+    RequestBuilder request = get("/post/" + post.get("id"))
+      .header("Authorization", "Bearer " + token)
+      .contentType(MediaType.APPLICATION_JSON);
+
+    String json = this.mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+      .andReturn().getResponse().getContentAsString();
+
+    GenericJson responsePost = this.jsonMapper.readValue(json, GenericJson.class);
+
+    assertEquals(post, responsePost);
+  }
 }
