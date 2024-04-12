@@ -4,12 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import jdk.jfr.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +33,6 @@ import org.walefy.util.TestHelpers;
 @DisplayName("<Post> Integration test")
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PostTest {
-
   @Autowired
   private MockMvc mockMvc;
 
@@ -200,5 +203,36 @@ public class PostTest {
     this.mockMvc.perform(postRequest)
       .andExpect(status().isForbidden())
       .andExpect(content().string(""));
+  }
+
+  @Test
+  @DisplayName("should list all posts")
+  public void listAllUsers() throws Exception {
+    this.makeRequest("/user", UserFixtures.validUserCreate, null, 201);
+    Map<String, String> login = Map.of(
+      "email", UserFixtures.validUserCreate.get("email"),
+      "password", UserFixtures.validUserCreate.get("password")
+    );
+    String token = this.login(login);
+    List<GenericJson> expectedPosts = new ArrayList<>();
+
+    for (int index = 0; index < 5; index++) {
+      Map<String, String> postPayload = Map.of("title", "test title" + index, "content", "test content");
+      GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
+      expectedPosts.add(post);
+    }
+
+    RequestBuilder request = get("/post")
+      .contentType(MediaType.APPLICATION_JSON)
+      .header("Authorization", "Bearer " + token);
+
+    String json = this.mockMvc.perform(request)
+      .andExpect(status().isOk())
+      .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+      .andReturn().getResponse().getContentAsString();
+
+    List<GenericJson> response = this.jsonMapper.readValue(json, new TypeReference<>() {});
+
+    assertEquals(expectedPosts, response);
   }
 }

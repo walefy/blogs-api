@@ -1,6 +1,7 @@
 package org.walefy.service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.walefy.entity.Post;
@@ -31,5 +32,9 @@ public class PostService {
     }
 
     this.postRepository.delete(post);
+  }
+
+  public List<Post> findAll() {
+    return this.postRepository.findAll();
   }
 }
