@@ -70,6 +70,12 @@ public class UserService implements UserDetailsService {
     return user.getPosts();
   }
 
+  public List<Post> findAllPosts(long id) throws UserNotFoundException {
+    User user = this.userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+
+    return user.getPosts();
+  }
+
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     return this.userRepository
