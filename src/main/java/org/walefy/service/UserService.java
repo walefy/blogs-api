@@ -54,9 +54,7 @@ public class UserService implements UserDetailsService {
 
   @Transactional
   public Post addPost(PostCreationDto postCreation, String email) throws UserNotFoundException {
-    User user = this.userRepository
-        .findByEmail(email)
-        .orElseThrow(UserNotFoundException::new);
+    User user = this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
 
     Post newPost = postCreation.toPost();
     newPost.setUser(user);
@@ -79,7 +77,7 @@ public class UserService implements UserDetailsService {
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     return this.userRepository
-        .findByEmail(email)
-        .orElseThrow(() -> new UsernameNotFoundException(email));
+      .findByEmail(email)
+      .orElseThrow(() -> new UsernameNotFoundException(email));
   }
 }
