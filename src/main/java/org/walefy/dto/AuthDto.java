@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record AuthDto(
-    @NotNull
-    @Email
+    @NotBlank(message = "email attribute must not be blank")
+    @Email(message = "email attribute must be a valid email")
     String email,
-    @NotBlank
+    @NotBlank(message = "password attribute must not be blank")
     String password
 ) {}
