@@ -58,6 +58,12 @@ public class Post {
     this.content = content;
   }
 
+  public Post(String title, String content, List<Category> categories) {
+    this.title = title;
+    this.content = content;
+    this.categories = categories != null ? categories : new ArrayList<>();
+  }
+
   public Post() {}
 
 

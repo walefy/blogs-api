@@ -38,9 +38,9 @@ public class UserTest {
 
   private GenericJson createUser(Map<String, String> data, int statusCode) throws Exception {
     String responseJson = this.mockMvc.perform(
-            post("/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestHelpers.objectToJson(data))
+      post("/user")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestHelpers.objectToJson(data))
     )
     .andExpect(status().is(statusCode))
     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -81,7 +81,7 @@ public class UserTest {
   @Test
   @DisplayName("shouldn't create two users with the same email")
   public void testCreateTwoUserConflict() throws Exception {
-    GenericJson expectedResponse = new GenericJson(Map.of("message", "User already registred!"));
+    GenericJson expectedResponse = new GenericJson(Map.of("message", "User already registered!"));
 
     this.createUser(UserFixtures.validUserCreate, 201);
     GenericJson response = this.createUser(UserFixtures.validUserCreate, 409);

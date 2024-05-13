@@ -21,10 +21,10 @@ public record UserCreationDto(
 ) {
   public User toUser() {
     return new User(
-        this.name,
-        this.email,
-        this.password,
-        this.image
+      this.name,
+      this.email,
+      this.password,
+      this.image
     );
   }
 }

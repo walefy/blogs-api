@@ -23,6 +23,12 @@ public class Category {
   @ManyToMany(mappedBy = "categories")
   private List<Post> posts = new ArrayList<>();
 
+  public Category(String name) {
+    this.name = name;
+  }
+
+  public Category() {}
+
   public Long getId() {
     return id;
   }

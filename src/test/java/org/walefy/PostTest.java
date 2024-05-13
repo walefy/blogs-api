@@ -54,7 +54,7 @@ public class PostTest {
 
   private GenericJson makeRequest(
     String endpoint,
-    Map<String, String> data,
+    Map<String, ?> data,
     String token,
     int status
   ) throws Exception {
@@ -83,7 +83,11 @@ public class PostTest {
     );
     String token = this.login(loginPayload);
 
-    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    Map<String, ?> postPayload = Map.of(
+      "title", "test title",
+      "content", "test content",
+      "categoriesIds", List.of(new Long[] {})
+    );
     GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
 
     assertEquals(post.get("id"), 1);
@@ -103,7 +107,11 @@ public class PostTest {
     );
     String token = this.login(loginPayload);
 
-    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    Map<String, ?> postPayload = Map.of(
+      "title", "test title",
+      "content", "test content",
+      "categoriesIds", List.of(new Long[] {})
+    );
     GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
 
     RequestBuilder deleteRequest = delete("/post/" + post.get("id"))
@@ -136,13 +144,13 @@ public class PostTest {
       )
     ));
 
-    Map<String, String> postPayloadWithoutTitle = Map.of(
-      "content",
-      "test content"
+    Map<String, ?> postPayloadWithoutTitle = Map.of(
+      "content", "test content",
+      "categoriesIds", List.of(new Long[] {})
     );
-    Map<String, String> postPayloadWithoutContent = Map.of(
-      "title",
-      "test title"
+    Map<String, ?> postPayloadWithoutContent = Map.of(
+      "title", "test title",
+      "categoriesIds", List.of(new Long[] {})
     );
 
     GenericJson postWithoutContent = this.makeRequest("/user/post", postPayloadWithoutContent, token, 400);
@@ -162,7 +170,11 @@ public class PostTest {
     );
     String tokenOwner = this.login(loginPayloadOwner);
 
-    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    Map<String, ?> postPayload = Map.of(
+      "title", "test title",
+      "content", "test content",
+      "categoriesIds", List.of(new Long[] {})
+    );
     GenericJson post = this.makeRequest("/user/post", postPayload, tokenOwner, 201);
 
     Map<String, String> notOwnerUser = Map.of(
@@ -211,7 +223,11 @@ public class PostTest {
     List<GenericJson> expectedPosts = new ArrayList<>();
 
     for (int index = 0; index < 5; index++) {
-      Map<String, String> postPayload = Map.of("title", "test title" + index, "content", "test content");
+      Map<String, Object> postPayload = Map.of(
+        "title", "test title" + index,
+        "content", "test content",
+        "categoriesIds", List.of(new Long[] {})
+      );
       GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
       expectedPosts.add(post);
     }
@@ -240,7 +256,11 @@ public class PostTest {
     );
     String token = this.login(login);
 
-    Map<String, String> postPayload = Map.of("title", "test title", "content", "test content");
+    Map<String, ?> postPayload = Map.of(
+      "title", "test title",
+      "content", "test content",
+      "categoriesIds", List.of(new Long[] {})
+    );
     GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
 
     RequestBuilder request = get("/post/" + post.get("id"))
@@ -269,7 +289,11 @@ public class PostTest {
     List<GenericJson> expectedPosts = new ArrayList<>();
 
     for (int index = 0; index < 5; index++) {
-      Map<String, String> postPayload = Map.of("title", "test title" + index, "content", "test content");
+      Map<String, ?> postPayload = Map.of(
+        "title", "test title" + index,
+        "content", "test content",
+        "categoriesIds", List.of(new Long[] {})
+      );
       GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
       expectedPosts.add(post);
     }
@@ -291,7 +315,11 @@ public class PostTest {
     List<GenericJson> notExpectedPosts = new ArrayList<>(expectedPosts);
 
     for (int index = 0; index < 5; index++) {
-      Map<String, String> postPayload = Map.of("title", "test title" + index, "content", "test content");
+      Map<String, ?> postPayload = Map.of(
+        "title", "test title" + index,
+        "content", "test content",
+        "categoriesIds", List.of(new Long[] {})
+      );
       GenericJson post = this.makeRequest("/user/post", postPayload, tokenSecondUser, 201);
       notExpectedPosts.add(post);
     }
@@ -323,7 +351,11 @@ public class PostTest {
     List<GenericJson> expectedPosts = new ArrayList<>();
 
     for (int index = 0; index < 5; index++) {
-      Map<String, String> postPayload = Map.of("title", "test title" + index, "content", "test content");
+      Map<String, ?> postPayload = Map.of(
+        "title", "test title" + index,
+        "content", "test content",
+        "categoriesIds", List.of(new Long[] {})
+      );
       GenericJson post = this.makeRequest("/user/post", postPayload, token, 201);
       expectedPosts.add(post);
     }
@@ -345,7 +377,11 @@ public class PostTest {
     List<GenericJson> notExpectedPosts = new ArrayList<>(expectedPosts);
 
     for (int index = 0; index < 5; index++) {
-      Map<String, String> postPayload = Map.of("title", "test title" + index, "content", "test content");
+      Map<String, ?> postPayload = Map.of(
+        "title", "test title" + index,
+        "content", "test content",
+        "categoriesIds", List.of(new Long[] {})
+      );
       GenericJson post = this.makeRequest("/user/post", postPayload, tokenSecondUser, 201);
       notExpectedPosts.add(post);
     }
