@@ -12,7 +12,7 @@ public record PostReturnDto(
   LocalDateTime createdAt,
   LocalDateTime updatedAt
 ) {
-  public static PostReturnDto postToPostReturnDto(Post post) {
+  public static PostReturnDto fromEntity(Post post) {
     List<CategoryReturnDto> categoryReturn = post
       .getCategories()
       .stream()

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.walefy.dto.PostReturnDto;
-import org.walefy.entity.Post;
 import org.walefy.exception.PostNotFoundException;
 import org.walefy.exception.UnauthorizedActionException;
 import org.walefy.service.PostService;
@@ -39,7 +38,7 @@ public class PostController {
     List<PostReturnDto> posts = this.postService
       .findAll()
       .stream()
-      .map(PostReturnDto::postToPostReturnDto)
+      .map(PostReturnDto::fromEntity)
       .toList();
 
     return ResponseEntity.ok(posts);
@@ -48,7 +47,7 @@ public class PostController {
   @GetMapping("/{id}")
   public ResponseEntity<PostReturnDto> findById(@PathVariable long id)
     throws PostNotFoundException {
-    PostReturnDto post = PostReturnDto.postToPostReturnDto(this.postService.findById(id));
+    PostReturnDto post = PostReturnDto.fromEntity(this.postService.findById(id));
 
     return ResponseEntity.ok(post);
   }

@@ -6,7 +6,7 @@ public record CategoryReturnDto(
   Long id,
   String name
 ) {
-  public CategoryReturnDto fromEntity(Category category) {
+  public static CategoryReturnDto fromEntity(Category category) {
     return new CategoryReturnDto(category.getId(), category.getName());
   }
 }

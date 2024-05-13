@@ -72,7 +72,7 @@ public class UserController {
       throws UserNotFoundException, CategoryNotFound {
     Post post = this.userService.addPost(postCreation, authentication.getName());
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(PostReturnDto.postToPostReturnDto(post));
+    return ResponseEntity.status(HttpStatus.CREATED).body(PostReturnDto.fromEntity(post));
   }
 
   @GetMapping("/post")
@@ -81,7 +81,7 @@ public class UserController {
     List<PostReturnDto> posts = this.userService
       .findAllPosts(authentication.getName())
       .stream()
-      .map(PostReturnDto::postToPostReturnDto)
+      .map(PostReturnDto::fromEntity)
       .toList();
 
     return ResponseEntity.ok(posts);
@@ -93,7 +93,7 @@ public class UserController {
     List<PostReturnDto> posts = this.userService
       .findAllPosts(id)
       .stream()
-      .map(PostReturnDto::postToPostReturnDto)
+      .map(PostReturnDto::fromEntity)
       .toList();
 
     return ResponseEntity.ok(posts);
