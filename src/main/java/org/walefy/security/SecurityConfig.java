@@ -29,15 +29,15 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     return httpSecurity
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      .csrf(AbstractHttpConfigurer::disable)
+      .sessionManagement(
+          session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(HttpMethod.POST, "/user").permitAll()
-            .requestMatchers(HttpMethod.GET, "/user").permitAll()
-            .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-            .anyRequest().authenticated()
+          .requestMatchers(HttpMethod.POST, "/user").permitAll()
+          .requestMatchers(HttpMethod.GET, "/user").permitAll()
+          .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+          .anyRequest().authenticated()
         )
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
@@ -45,8 +45,8 @@ public class SecurityConfig {
 
   @Bean
   public AuthenticationManager authenticationManager(
-      AuthenticationConfiguration authenticationConfiguration)
-      throws Exception {
+    AuthenticationConfiguration authenticationConfiguration
+  ) throws Exception {
     return authenticationConfiguration.getAuthenticationManager();
   }
 

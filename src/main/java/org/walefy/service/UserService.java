@@ -16,6 +16,7 @@ import org.walefy.entity.Category;
 import org.walefy.entity.Post;
 import org.walefy.entity.User;
 import org.walefy.exception.CategoryNotFound;
+import org.walefy.exception.NotFoundException;
 import org.walefy.exception.UserAlreadyRegistered;
 import org.walefy.exception.UserNotFoundException;
 import org.walefy.repository.CategoryRepository;
@@ -60,8 +61,7 @@ public class UserService implements UserDetailsService {
   }
 
   @Transactional
-  public Post addPost(PostCreationDto postCreation, String email)
-    throws UserNotFoundException, CategoryNotFound {
+  public Post addPost(PostCreationDto postCreation, String email) throws NotFoundException {
     User user = this.userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
     List<Category> categories = new ArrayList<>();
 

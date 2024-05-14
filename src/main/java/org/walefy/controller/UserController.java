@@ -21,6 +21,7 @@ import org.walefy.dto.UserReturnDto;
 import org.walefy.entity.Post;
 import org.walefy.entity.User;
 import org.walefy.exception.CategoryNotFound;
+import org.walefy.exception.NotFoundException;
 import org.walefy.exception.UserAlreadyRegistered;
 import org.walefy.exception.UserNotFoundException;
 import org.walefy.service.UserService;
@@ -68,8 +69,7 @@ public class UserController {
   public ResponseEntity<PostReturnDto> addPost(
       @RequestBody @Valid PostCreationDto postCreation,
       Authentication authentication
-  )
-      throws UserNotFoundException, CategoryNotFound {
+  ) throws NotFoundException {
     Post post = this.userService.addPost(postCreation, authentication.getName());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(PostReturnDto.fromEntity(post));

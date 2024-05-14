@@ -1,6 +1,6 @@
 package org.walefy.exception;
 
-public class PostNotFoundException extends Exception {
+public class PostNotFoundException extends NotFoundException {
   public PostNotFoundException() {
     super("Post not found!");
   }
