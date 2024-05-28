@@ -38,3 +38,8 @@ no arquivo `docker-compose.yml`
 ### Mysql
 
 - Simples e direto ao ponto mas poderia ser qualquer banco sql no lugar.
+
+## Próximos passos
+
+- [ ] Documentar utilizando swagger
+- [ ] Isolar o core da aplicação para não depender do spring (Adapter)
